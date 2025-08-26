@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if current_user.is_authenticated %}
+        <h2 class="mb-4">Hello, {{ current_user.username }}!</h2>
+        <h4>Your Todos</h4>
+
+        <!-- Form to add a new todo -->
+        <form method="POST" action="{{ url_for('main.add_todo') }}" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="title" class="form-control" placeholder="New todo" required>
+                <button class="btn btn-primary" type="submit">Add Todo</button>
+            </div>
+        </form>
+
+        <!-- Todo list table -->
+        {% if todos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for todo in todos %}
+                <tr>
+                    <td>
+                        {% if edit_id == todo.id %}
+                        <!-- Inline edit form -->
+                        <form method="POST" action="{{ url_for('main.edit_todo', todo_id=todo.id) }}" class="d-flex">
+                            <input type="text" name="title" class="form-control me-2" value="{{ todo.title }}" required>
+                            <button type="submit" class="btn btn-success btn-sm me-1">Save</button>
+                            <a href="{{ url_for('main.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
+                        </form>
+                        {% else %}
+                        {{ todo.title }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if todo.completed %}
+                            <span class="badge bg-success">Completed</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if edit_id != todo.id %}
+                        <a href="{{ url_for('main.index', edit_id=todo.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{{ url_for('main.toggle_todo', todo_id=todo.id) }}" class="btn btn-sm btn-info">Toggle</a>
+                        <a href="{{ url_for('main.delete_todo', todo_id=todo.id) }}" class="btn btn-sm btn-danger">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No todos yet. Add one above!</p>
+        {% endif %}
+
+    {% else %}
+        <div class="text-center">
+            <h1>Welcome to MyApp!</h1>
+            <p class="lead">Please <a href="{{ url_for('main.login') }}">login</a> or <a href="{{ url_for('main.register') }}">register</a> to continue.</p>
+            <a href="{{ url_for('main.register') }}" class="btn btn-success me-2">Get Started</a>
+            <a href="{{ url_for('main.login') }}" class="btn btn-primary">Login</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
